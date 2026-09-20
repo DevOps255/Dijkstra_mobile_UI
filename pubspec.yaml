@@ -1,0 +1,121 @@
+name: bus_campus
+description: "Application étudiante — Bus Campus"
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ── State management & DI ────────────────────────────────────────
+  flutter_riverpod: ^2.5.1
+  get_it: ^7.7.0
+  injectable: ^2.4.2
+
+  # ── Navigation ────────────────────────────────────────────────────
+  go_router: ^14.2.7
+
+  # ── Persistance ───────────────────────────────────────────────────
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.3.2
+
+  # ── Médias & animations ───────────────────────────────────────────
+  video_player: ^2.9.1
+  lottie: ^3.1.3
+  flutter_animate: ^4.5.0
+
+  # ── UI / Typographie / Responsive ────────────────────────────────
+  google_fonts: ^6.2.1
+  flutter_screenutil: ^5.9.3
+
+  # ── Onboarding ──────────────────────────────────────────────────────
+  smooth_page_indicator: ^1.2.0
+
+  # ── Divers ────────────────────────────────────────────────────────
+  equatable: ^2.0.5
+
+  cupertino_icons: ^1.0.8
+
+  # ── Réseau (module auth) ──────────────────────────────────────────
+  dio: ^5.5.0+1
+  cookie_jar: ^4.0.8
+  dio_cookie_manager: ^3.1.1
+  path_provider: ^2.1.4
+
+  # ── Deep linking / ouverture app mail (module auth) ─────────────────
+  app_links: ^6.3.2
+  url_launcher: ^6.3.0
+  android_intent_plus: ^5.1.0
+
+  # ── Audio (module home) ────────────────────────────────────────────
+  audioplayers: ^6.1.0
+  flutter_sound: ^9.10.4
+
+  # Mobile Money (module wallet)
+  permission_handler: ^11.3.1
+  qr_flutter: ^4.1.0
+
+  # Carte temps reel (L37A/B)
+  web_socket_channel: ^3.0.1
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+  build_runner: ^2.4.13
+  injectable_generator: ^2.6.2
+
+# ──────────────────────────────────────────────────────────────────
+# PACKAGES VOLONTAIREMENT ABSENTS DE CETTE ÉTAPE — à ajouter un par
+# un, au moment exact où le module qui les utilise est construit,
+# jamais en anticipation :
+#
+#   retrofit, retrofit_generator, pretty_dio_logger
+#     → si un jour la surface d'endpoints justifie de remplacer les
+#       appels Dio manuels par des interfaces générées
+#
+#   isar, isar_flutter_libs, isar_generator
+#     → module tickets (L39A) : cache offline
+#
+#   freezed, freezed_annotation, json_annotation, json_serializable
+#     → quand le nombre de DTOs hand-written devient difficile à
+#       maintenir manuellement (actuellement : 1 seul, AuthUser)
+#
+#   riverpod_annotation, riverpod_generator
+#     → dès le premier contrôleur dérivant d'un flux asynchrone
+#       complexe (AsyncValue multi-sources)
+#
+#   flutter_form_builder, form_builder_validators
+#     → réservé aux écrans à formulaire MULTI-CHAMPS simultané
+#       (ex: profil étudiant complet). Le module auth actuel valide
+#       un champ à la fois — TextFormField + validation manuelle
+#       (voir AuthTextField) est le choix le plus simple qui marche,
+#       pas un raccourci.
+#
+#   cached_network_image, shimmer, flutter_svg, gap, tutorial_coach_mark
+#     → dès qu'un écran les utilise réellement
+#
+# Chaque ajout est fait avec une version épinglée et testée pour la
+# résolution complète du graphe de dépendances AVANT livraison —
+# plus jamais d'ajout spéculatif comme celui qui a cassé le build
+# initial (retrofit_generator/isar_generator en conflit d'analyzer).
+# ──────────────────────────────────────────────────────────────────
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/videos/
+    - assets/lottie/
+    - assets/audio/
+
+  # Inter et JetBrains Mono sont chargées dynamiquement via google_fonts
+  # (mise en cache locale automatique — pas de poids d'APK
+  # supplémentaire au premier build, contrairement à l'embarquement
+  # statique de fichiers .ttf).
