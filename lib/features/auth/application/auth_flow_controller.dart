@@ -12,10 +12,10 @@ enum AuthStep {
   emailEntry,
   confirmEmail,
   loginPassword, // utilisateur déjà inscrit et vérifié
-  fullName, // inscription — étape 1
-  createPassword, // inscription — étape 2
+  fullName, // inscription qui est l'étape 1
+  createPassword, // inscription l'eétape 2
   checkYourEmail, // en attente du clic sur le lien
-  welcome, // animation Lottie de bienvenue
+  welcome, // animation  de bienvenue
 }
 
 class AuthFlowState {
@@ -41,7 +41,7 @@ class AuthFlowState {
   final bool isLoading;
   final String? errorMessage;
 
-  /// Message de confirmation neutre (ex: "Email renvoyé.") — distinct
+  /// Message de confirmation neutre (ex: "Email renvoyé.") distinct
   /// de [errorMessage] pour ne pas afficher un bandeau d'erreur rouge
   /// sur une action qui a réussi.
   final String? infoMessage;
@@ -68,8 +68,8 @@ class AuthFlowState {
 }
 
 /// Fenêtre de rétention du mot de passe en attente de confirmation
-/// email (inscription fraîche uniquement — voir la note en fin de
-/// fichier) — passé ce délai, le mot de passe en mémoire est purgé.
+/// email (inscription fraîche uniquement  voir la note en fin de
+/// fichier)  passé ce délai, le mot de passe en mémoire est purgé.
 const Duration _pendingPasswordWindow = Duration(minutes: 10);
 
 class AuthFlowController extends Notifier<AuthFlowState> {
@@ -77,7 +77,7 @@ class AuthFlowController extends Notifier<AuthFlowState> {
   late final VerificationDeepLinkService _deepLinkService;
   late final MailAppLauncher _mailLauncher;
 
-  /// Jamais exposé dans [AuthFlowState] — un mot de passe ne doit
+  /// Jamais exposé dans [AuthFlowState] car un mot de passe ne doit
   /// jamais transiter par un état observable/loggable par des devtools
   /// Riverpod. Existence strictement bornée dans le temps et effacée
   /// explicitement dès qu'elle n'est plus nécessaire.
@@ -129,12 +129,12 @@ class AuthFlowController extends Notifier<AuthFlowState> {
     }
   }
 
-  /// Branche à TROIS voies — c'est le correctif de la faille de
+  /// Branche à TROIS voies c'est le correctif de la faille de
   /// contournement de vérification email :
   /// - nouveau compte              -> saisie du nom (inscription)
   /// - compte existant, vérifié    -> mot de passe (connexion normale)
   /// - compte existant, NON vérifié -> reprise de la vérification,
-  ///   jamais un accès direct au mot de passe.
+  ///   
   void confirmEmailAndProceed() {
     if (!_isExistingUser) {
       state = state.copyWith(step: AuthStep.fullName, clearError: true);
@@ -146,7 +146,7 @@ class AuthFlowController extends Notifier<AuthFlowState> {
       return;
     }
 
-    // Compte existant mais jamais vérifié — on ne connaît pas son
+    // Compte existant mais pas vérifié  on ne connaît pas son
     // mot de passe dans cette session, donc pas d'auto-login possible
     // après clic sur le lien. On mène simplement l'utilisateur vers
     // l'écran mot de passe une fois la vérification confirmée.
@@ -188,7 +188,7 @@ class AuthFlowController extends Notifier<AuthFlowState> {
         );
         return;
       }
-      // Le délai est passé — on réinitialise silencieusement.
+      // Le délai est passé on réinitialise
       _loginLockedUntil = null;
       _failedLoginAttempts = 0;
     }
@@ -247,7 +247,7 @@ class AuthFlowController extends Notifier<AuthFlowState> {
     }
   }
 
-  /// Bouton "Je n'ai pas reçu l'email" — jusqu'ici sans action.
+  /// Bouton "Je n'ai pas reçu l'email" 
   Future<void> resendVerificationEmail() async {
     state = state.copyWith(isLoading: true, clearError: true, clearInfo: true);
     try {
@@ -266,7 +266,7 @@ class AuthFlowController extends Notifier<AuthFlowState> {
 
   Future<bool> openMailApp() => _mailLauncher.openMailApp();
 
-  /// Deep link reçu pendant une inscription FRAÎCHE — le mot de passe
+  /// Deep link reçu pendant une nouvelle inscription  comme le mot de passe
   /// est encore en mémoire, on peut connecter directement.
   Future<void> _handleFreshSignupVerification() async {
     final password = _pendingPassword;
@@ -293,9 +293,8 @@ class AuthFlowController extends Notifier<AuthFlowState> {
     }
   }
 
-  /// Deep link reçu en REPRISE d'un compte existant non vérifié — pas
-  /// de mot de passe en mémoire (fermé et rouvert l'app entre-temps),
-  /// donc jamais d'auto-login : on demande le mot de passe maintenant
+  /// Deep link reçu en REPRISE d'un compte existant non vérifié 
+  ///  on demande le mot de passe maintenant
   /// que le compte est confirmé vérifié.
   void _handleResumedVerification() {
     _isExistingVerified = true;
@@ -323,16 +322,3 @@ final authFlowControllerProvider =
   AuthFlowController.new,
 );
 
-// ─────────────────────────────────────────────────────────────────
-// AMÉLIORATION FUTURE RECOMMANDÉE (backend) :
-//
-// Faire retourner à `POST /auth/verify` (L22B) un `access_token` et
-// poser le cookie `refresh_token` — exactement comme `/auth/login` —
-// quand la vérification réussit. La page de confirmation HTML
-// redirigerait alors vers `buscampus://verified?access_token=...`.
-// Ça supprimerait le besoin de conserver le mot de passe en mémoire
-// pendant l'inscription fraîche, ET permettrait un vrai auto-login
-// même en reprise de compte non vérifié. Compromis actuel : fonctionnel
-// et sûr (jamais de mot de passe reconstruit ou stocké), mais demande
-// à l'utilisateur de retaper son mot de passe en reprise.
-// ─────────────────────────────────────────────────────────────────
